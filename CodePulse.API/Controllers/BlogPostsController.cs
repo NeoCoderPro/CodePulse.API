@@ -103,5 +103,43 @@ namespace CodePulse.API.Controllers
 
             return Ok(response);
         }
+
+        // GET: {apiBaseUrl}/api/blogposts/{id}
+        [HttpGet]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> GetBlogPostById([FromRoute] Guid id)
+        {
+            // Get the BlogPost from Repo
+            var blogPost =  await blogPostRepository.GetByIdAsync(id);
+
+            if (blogPost is null)
+            {
+                return NotFound();
+            }
+
+            // Convert Domain model to DTO
+            var response = new BlogPostDto
+            {
+                Id = blogPost.Id,
+                Author = blogPost.Author,
+                Title = blogPost.Title,
+                Content = blogPost.Content,
+                UrlHandle = blogPost.UrlHandle,
+                FeaturedImageUrl = blogPost.FeaturedImageUrl,
+                PublishedDate = blogPost.PublishedDate,
+                ShortDescription = blogPost.ShortDescription,
+                IsVisible = blogPost.IsVisible,
+                Categories = blogPost.Categories.Select(x => new CategoryDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle
+                }).ToList()
+            };
+
+            return Ok(response);
+
+        }
+
     }
 }
